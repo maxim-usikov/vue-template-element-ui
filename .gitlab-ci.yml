@@ -1,0 +1,50 @@
+# This file is a template, and might need editing before it works on your
+# project.
+
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+# Official framework image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/node/tags/
+image: node:8
+
+# This folder is cached between builds
+# http://docs.gitlab.com/ce/ci/yaml/README.html#cache
+cache:
+  paths:
+  - node_modules/
+
+lint app:
+  stage: lint
+  script:
+    - yarn install --no-progress
+    - yarn lint
+  only:
+    - master
+    - CI-test
+
+test:unit:
+  stage: test
+  script:
+    - yarn install --no-progress
+    - yarn test:unit
+  only:
+    - master
+    - CI-test
+
+build app:
+  stage: build
+  script:
+    - yarn install --no-progress
+    - yarn build
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME"
+    expire_in: 1 week
+    paths:
+      - dist
+  only:
+    - master
+    - CI-test
